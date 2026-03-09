@@ -1,104 +1,134 @@
 /**
- * ROUND DATA — Edit this file to add new rounds!
+ * BANG AVERAGE TOUR — Season 2026
+ * ================================
+ * Edit this file to add rounds, shame entries, and social posts.
  *
- * After adding a round:
+ * After editing:
  *   1. Save this file
  *   2. In Terminal: cd ~/nordic-golf-rivalry
- *   3. git add . && git commit -m "Add round at [course name]" && git push
+ *   3. git add . && git commit -m "description" && git push
  *   4. Vercel auto-deploys in ~30 seconds
  *
  * Game modes:
  *   "Scramble"  — Both hit, pick best ball, both play from there
  *   "Shamble"   — Both hit tee shot, pick best, play own ball from there
- *   "Best Ball"  — Everyone plays their own ball, best score on each hole counts
+ *   "Best Ball" — Everyone plays own ball, best score on each hole counts
  */
 
 export const TEAMS = {
   team1: {
-    name: "Team Shotshaper",
+    name: "Tall Boys with Short Drives",
     color: "#1a5632",
     players: [
-      { name: "Christian Ulfsrud", nickname: "The Insurer", emoji: "🛡️" },
-      { name: "Jonas Ussvær", nickname: "Shotshaper", emoji: "🎯" },
+      {
+        name: "Christian Ulfsrud",
+        nickname: "The Insurer",
+        emoji: "🛡️",
+        photo: "/media/christian.jpg",
+      },
+      {
+        name: "Jonas Ussvær",
+        nickname: "Shotshaper",
+        emoji: "🎯",
+        photo: "/media/jonas.jpg",
+      },
     ],
   },
   team2: {
-    name: "Team Cyber",
+    name: "Two Boys but Three off the Tee",
     color: "#1e3a5f",
     players: [
-      { name: "Hans Oscar Morstad", nickname: "Freeze, Cyber Security", emoji: "🧊" },
-      { name: "Håkon Skår", nickname: "The Thinner", emoji: "✂️" },
+      {
+        name: "Hans Oscar Morstad",
+        nickname: "Freeze, Cyber Security",
+        emoji: "🧊",
+        photo: "/media/hans-oscar.jpg",
+      },
+      {
+        name: "Håkon Skår",
+        nickname: "The Thinner",
+        emoji: "✂️",
+        photo: "/media/hakon.jpg",
+      },
     ],
   },
 };
 
+// ──────────────────────────────────────────────
+// NEXT MATCH — Update when you plan the next round
+// Set to null if nothing is planned
+// ──────────────────────────────────────────────
+export const NEXT_MATCH = {
+  date: "2026-04-18",
+  time: "10:00",
+  course: "TBD",
+  gameMode: "Scramble",
+  notes: "Season opener. Time to dust off the clubs.",
+};
+
+// ──────────────────────────────────────────────
+// ROUNDS — Add real rounds as the season goes
+// ──────────────────────────────────────────────
 export const ROUNDS = [
-  // ──────────────────────────────────────────────
-  // EXAMPLE ROUNDS — Replace with real data!
-  // ──────────────────────────────────────────────
-  {
-    id: 1,
-    date: "2026-04-12",
-    course: "Oslo Golfklubb",
-    gameMode: "Scramble",
-    team1Score: 66,
-    team2Score: 69,
-    team1Handicap: 18,
-    team2Handicap: 20,
-    winner: "team1",
-    mvp: "Jonas Ussvær",
-    highlight: "Jonas drained a 30-foot birdie putt on 17 to seal it.",
-  },
-  {
-    id: 2,
-    date: "2026-04-19",
-    course: "Losby Golfklubb",
-    gameMode: "Best Ball",
-    team1Score: 71,
-    team2Score: 68,
-    team1Handicap: 18,
-    team2Handicap: 20,
-    winner: "team2",
-    mvp: "Hans Oscar Morstad",
-    highlight: "Hans Oscar went full cyber mode on the back nine — 3 birdies in a row.",
-  },
-  {
-    id: 3,
-    date: "2026-04-26",
-    course: "Miklagard Golfklubb",
-    gameMode: "Shamble",
-    team1Score: 70,
-    team2Score: 70,
-    team1Handicap: 17,
-    team2Handicap: 19,
-    winner: "tie",
-    mvp: null,
-    highlight: "Dead heat. Both teams refused to lose. Rematch demanded.",
-  },
-  {
-    id: 4,
-    date: "2026-05-03",
-    course: "Bærum Golfklubb",
-    gameMode: "Scramble",
-    team1Score: 64,
-    team2Score: 67,
-    team1Handicap: 17,
-    team2Handicap: 19,
-    winner: "team1",
-    mvp: "Christian Ulfsrud",
-    highlight: "The Insurer covered every risk — didn't miss a fairway all day.",
-  },
-  {
-    id: 5,
-    date: "2026-05-10",
-    course: "Oslo Golfklubb",
-    gameMode: "Best Ball",
-    team1Score: 73,
-    team2Score: 71,
-    team1Handicap: 16,
-    team2Handicap: 19,
-    winner: "team2",
-    mvp: "Håkon Skår",
-    highlight: "The Thinner sliced through the competition. Eagle on 14.",
-  },
+  // {
+  //   id: 1,
+  //   date: "2026-04-18",
+  //   course: "Oslo Golfklubb",
+  //   gameMode: "Scramble",
+  //   team1Score: 68,
+  //   team2Score: 71,
+  //   team1Handicap: 18,
+  //   team2Handicap: 20,
+  //   winner: "team1",  // "team1", "team2", or "tie"
+  //   mvp: "Jonas Ussvær",
+  //   highlight: "Shotshaper shaped a shot. Obviously.",
+  // },
+];
+
+// ──────────────────────────────────────────────
+// HALL OF SHAME
+// The place where golf's worst moments live forever.
+// Every shanked drive, every lake ball, every 4-putt.
+// Add a photo if you caught it on camera.
+//
+// Categories: "water", "ob", "whiff", "temper", "4putt", "shank", "misc"
+// ──────────────────────────────────────────────
+export const HALL_OF_SHAME = [
+  // {
+  //   id: 1,
+  //   date: "2026-04-18",
+  //   round: 1,            // which round number (matches ROUNDS id)
+  //   hole: 7,             // which hole
+  //   player: "Håkon Skår",
+  //   title: "The Lake Ball Collection",
+  //   description: "Topped it straight into the water. Dropped, topped it again. Same water. New ball, same result. Three balls sleeping with the fish on a single par 3.",
+  //   category: "water",
+  //   photo: "/media/shame-hakon-hole7.jpg",  // optional — put image in public/media/
+  // },
+];
+
+// ──────────────────────────────────────────────
+// SOCIAL BOARD
+// Post-round banter, on-course moments, celebration pics.
+// Supports images, videos, and text-only posts.
+//
+// For images/videos: save file to public/media/ and use "/media/filename.jpg"
+// For text-only posts: set type to "text" and skip the url field
+// ──────────────────────────────────────────────
+export const SOCIAL_POSTS = [
+  // {
+  //   id: 1,
+  //   date: "2026-04-18",
+  //   author: "Jonas Ussvær",
+  //   type: "image",       // "image", "video", or "text"
+  //   url: "/media/round1-win.jpg",
+  //   caption: "Christian already making excuses on hole 1. Some things never change.",
+  // },
+  // {
+  //   id: 2,
+  //   date: "2026-04-18",
+  //   author: "Håkon Skår",
+  //   type: "text",
+  //   caption: "I demand a recount. There's no way that was OB.",
+  // },
 ];
