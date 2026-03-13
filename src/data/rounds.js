@@ -62,10 +62,10 @@ export const TEAMS = {
 export const PLANNED_ROUNDS = [
   {
     id: "planned-1",
-    date: "2026-04-18",
-    time: "10:00",
+    date: "2026-03-21",
+    time: "TBD",
     course: "TBD",
-    gameMode: "Scramble",
+    gameMode: "Shamble",
     notes: "Christian med ny driver, Håkon med ny dame. Let the season begin!",
   },
 ];
@@ -135,4 +135,19 @@ export const SOCIAL_POSTS = [
   //   type: "text",
   //   caption: "I demand a recount. There's no way that was OB.",
   // },
+
+  {
+    id: 1,
+    date: "2026-03-13",
+    author: "Jonas Ussvær",
+    type: "text",
+    caption: "Ikke lenge igjen nå!!",
+  },
+  {
+    id: 2,
+    date: "2026-03-13",
+    author: "Håkon Skår",
+    type: "text",
+    caption: "Håkon skjelver i buksene",
+  }
 ];
