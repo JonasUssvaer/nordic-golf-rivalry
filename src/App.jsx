@@ -2,9 +2,12 @@ import { useState, useMemo } from "react";
 import {
   Trophy, Flag, TrendingUp, Calendar, MapPin, Star, Flame, Target,
   ChevronDown, ChevronUp, Clock, Camera, MessageCircle, Skull,
-  Droplets, Wind, ThumbsDown, Play, AlertOctagon, CircleOff, Frown, Hash,
+  Droplets, Wind, ThumbsDown, AlertOctagon, CircleOff, Frown,
+  Plus, X,
 } from "lucide-react";
-import { TEAMS, ROUNDS, NEXT_MATCH, HALL_OF_SHAME, SOCIAL_POSTS } from "./data/rounds";
+import { TEAMS, ROUNDS, PLANNED_ROUNDS, HALL_OF_SHAME, SOCIAL_POSTS } from "./data/rounds";
+
+const GAME_MODES = ["Scramble", "Shamble", "Best Ball", "Stableford", "Stroke Play"];
 
 // ─── Utilities ─────────────────────────────────────────────────────────────
 
@@ -138,9 +141,9 @@ function HeroSection({ stats }) {
   );
 }
 
-function NextMatchCard() {
-  if (!NEXT_MATCH) return null;
-  const days = daysUntil(NEXT_MATCH.date);
+function NextMatchCard({ match }) {
+  if (!match) return null;
+  const days = daysUntil(match.date);
   const isToday = days === 0;
   const isPast = days < 0;
 
@@ -162,20 +165,20 @@ function NextMatchCard() {
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
           <p className="text-green-400 text-xs uppercase tracking-wider mb-1">When</p>
-          <p className="text-white">{formatDate(NEXT_MATCH.date)}{NEXT_MATCH.time && ` — ${NEXT_MATCH.time}`}</p>
+          <p className="text-white">{formatDate(match.date)}{match.time && ` — ${match.time}`}</p>
         </div>
         <div>
           <p className="text-green-400 text-xs uppercase tracking-wider mb-1">Where</p>
-          <p className="text-white flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-green-400" />{NEXT_MATCH.course}</p>
+          <p className="text-white flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-green-400" />{match.course}</p>
         </div>
         <div>
           <p className="text-green-400 text-xs uppercase tracking-wider mb-1">Format</p>
-          <p className="text-white">{NEXT_MATCH.gameMode}</p>
+          <p className="text-white">{match.gameMode}</p>
         </div>
-        {NEXT_MATCH.notes && (
+        {match.notes && (
           <div>
             <p className="text-green-400 text-xs uppercase tracking-wider mb-1">Notes</p>
-            <p className="text-green-200 italic text-sm">"{NEXT_MATCH.notes}"</p>
+            <p className="text-green-200 italic text-sm">"{match.notes}"</p>
           </div>
         )}
       </div>
@@ -541,11 +544,248 @@ function SocialBoard() {
   );
 }
 
+// ─── CALENDAR ──────────────────────────────────────────────────────────────
+
+function PlannedRoundCard({ round, isNext, onRemove }) {
+  const days = daysUntil(round.date);
+  const isToday = days === 0;
+
+  return (
+    <div className={`rounded-xl p-5 border ${isNext ? "bg-gradient-to-br from-green-900 to-green-800 border-green-700 border-opacity-60" : "bg-gray-800 border-gray-700"}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {isNext && (
+              <span className="text-xs bg-green-600 text-white px-2.5 py-0.5 rounded-full font-medium">Next Up</span>
+            )}
+            <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+              isToday ? "bg-yellow-500 text-black" :
+              days <= 3 ? "bg-orange-600 bg-opacity-40 text-orange-200" :
+              "bg-green-700 bg-opacity-60 text-green-200"
+            }`}>
+              {isToday ? "TODAY" : `in ${days} day${days === 1 ? "" : "s"}`}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <p className="text-green-400 text-xs uppercase tracking-wider mb-1">When</p>
+              <p className="text-white">{formatDate(round.date)}{round.time && ` — ${round.time}`}</p>
+            </div>
+            <div>
+              <p className="text-green-400 text-xs uppercase tracking-wider mb-1">Where</p>
+              <p className="text-white flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-green-400" />{round.course}</p>
+            </div>
+            <div>
+              <p className="text-green-400 text-xs uppercase tracking-wider mb-1">Format</p>
+              <p className="text-white">{round.gameMode}</p>
+            </div>
+            {round.notes && (
+              <div>
+                <p className="text-green-400 text-xs uppercase tracking-wider mb-1">Notes</p>
+                <p className="text-green-200 italic text-sm">"{round.notes}"</p>
+              </div>
+            )}
+          </div>
+        </div>
+        {onRemove && (
+          <button onClick={onRemove} className="text-gray-600 hover:text-red-400 transition-colors mt-0.5 flex-shrink-0">
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AddRoundModal({ onClose, onAdd }) {
+  const [form, setForm] = useState({ date: "", time: "", course: "", gameMode: "Scramble", notes: "" });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!form.date || !form.course) return;
+    onAdd(form);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md p-6 space-y-5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <h3 className="text-white font-bold text-lg flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-green-400" />
+            Add Planned Round
+          </h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-green-400 text-xs uppercase tracking-wider block mb-1.5">Date *</label>
+            <input
+              type="date"
+              required
+              value={form.date}
+              onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+              className="w-full bg-gray-700 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-600 focus:border-green-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="text-green-400 text-xs uppercase tracking-wider block mb-1.5">Time</label>
+            <input
+              type="time"
+              value={form.time}
+              onChange={(e) => setForm((f) => ({ ...f, time: e.target.value }))}
+              className="w-full bg-gray-700 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-600 focus:border-green-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="text-green-400 text-xs uppercase tracking-wider block mb-1.5">Course *</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Oslo Golfklubb"
+              value={form.course}
+              onChange={(e) => setForm((f) => ({ ...f, course: e.target.value }))}
+              className="w-full bg-gray-700 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-600 focus:border-green-500 focus:outline-none placeholder-gray-500"
+            />
+          </div>
+          <div>
+            <label className="text-green-400 text-xs uppercase tracking-wider block mb-1.5">Game Mode *</label>
+            <select
+              value={form.gameMode}
+              onChange={(e) => setForm((f) => ({ ...f, gameMode: e.target.value }))}
+              className="w-full bg-gray-700 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-600 focus:border-green-500 focus:outline-none"
+            >
+              {GAME_MODES.map((m) => <option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-green-400 text-xs uppercase tracking-wider block mb-1.5">Notes</label>
+            <input
+              type="text"
+              placeholder="Any notes or comments..."
+              value={form.notes}
+              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+              className="w-full bg-gray-700 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-600 focus:border-green-500 focus:outline-none placeholder-gray-500"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-green-700 hover:bg-green-600 text-white rounded-lg py-3 font-semibold text-sm transition-colors"
+          >
+            Add to Calendar
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function CalendarView({ allPlannedRounds, onAdd, onRemove }) {
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const upcoming = allPlannedRounds.filter((r) => new Date(r.date) >= today);
+  const past = allPlannedRounds.filter((r) => new Date(r.date) < today);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-white font-semibold text-lg flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-green-400" />
+          Upcoming Rounds
+        </h2>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Add Round
+        </button>
+      </div>
+
+      {upcoming.length === 0 ? (
+        <div className="bg-gray-800 rounded-xl p-10 border border-gray-700 text-center">
+          <p className="text-4xl mb-3">📅</p>
+          <p className="text-gray-400 text-sm">No rounds planned yet.</p>
+          <p className="text-gray-600 text-xs mt-1">Hit "Add Round" to schedule your next game.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {upcoming.map((round, i) => (
+            <PlannedRoundCard
+              key={round.id}
+              round={round}
+              isNext={i === 0}
+              onRemove={String(round.id).startsWith("user-") ? () => onRemove(round.id) : null}
+            />
+          ))}
+        </div>
+      )}
+
+      {past.length > 0 && (
+        <div>
+          <p className="text-gray-600 text-xs uppercase tracking-wider mb-3">Past Scheduled</p>
+          <div className="space-y-2 opacity-50">
+            {past.map((round) => (
+              <div key={round.id} className="bg-gray-800 rounded-lg px-4 py-3 border border-gray-700 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-gray-400 text-sm">{formatDate(round.date)}</span>
+                  <span className="text-gray-500 text-sm">{round.course}</span>
+                </div>
+                <span className="text-xs bg-gray-700 text-gray-400 px-2 py-0.5 rounded-full">{round.gameMode}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {showAddModal && (
+        <AddRoundModal
+          onClose={() => setShowAddModal(false)}
+          onAdd={(round) => { onAdd(round); setShowAddModal(false); }}
+        />
+      )}
+    </div>
+  );
+}
+
 // ─── MAIN APP ──────────────────────────────────────────────────────────────
 
 export default function App() {
   const [filter, setFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("scoreboard");
+
+  // Planned rounds: static data merged with user-added (persisted in localStorage)
+  const [userPlannedRounds, setUserPlannedRounds] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("bat_planned_rounds") || "[]"); }
+    catch { return []; }
+  });
+
+  const allPlannedRounds = useMemo(() => {
+    return [...PLANNED_ROUNDS, ...userPlannedRounds].sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [userPlannedRounds]);
+
+  const nextMatch = useMemo(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    return allPlannedRounds.find((r) => new Date(r.date) >= today) || null;
+  }, [allPlannedRounds]);
+
+  const addPlannedRound = (round) => {
+    const newRound = { ...round, id: `user-${Date.now()}` };
+    const updated = [...userPlannedRounds, newRound];
+    setUserPlannedRounds(updated);
+    localStorage.setItem("bat_planned_rounds", JSON.stringify(updated));
+  };
+
+  const removePlannedRound = (id) => {
+    const updated = userPlannedRounds.filter((r) => r.id !== id);
+    setUserPlannedRounds(updated);
+    localStorage.setItem("bat_planned_rounds", JSON.stringify(updated));
+  };
 
   const filteredRounds = useMemo(() => {
     let r = [...ROUNDS].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -556,9 +796,15 @@ export default function App() {
   const stats = useMemo(() => getStats(ROUNDS), []);
   const gameModes = [...new Set(ROUNDS.map((r) => r.gameMode))];
 
+  const upcomingCount = allPlannedRounds.filter(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    return true;
+  }).filter((r) => { const today = new Date(); today.setHours(0, 0, 0, 0); return new Date(r.date) >= today; }).length;
+
   const tabs = [
     { id: "scoreboard", label: "Scoreboard", icon: Trophy },
-    { id: "shame", label: "Wall of Shame", icon: Skull, count: HALL_OF_SHAME.length },
+    { id: "calendar", label: "Calendar", icon: Calendar, count: upcomingCount },
+    { id: "shame", label: "Shame", icon: Skull, count: HALL_OF_SHAME.length },
     { id: "social", label: "Social", icon: Camera, count: SOCIAL_POSTS.length },
   ];
 
@@ -581,7 +827,7 @@ export default function App() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     activeTab === tab.id ? "bg-green-800 bg-opacity-40 text-green-300" : "text-gray-500 hover:text-gray-300 hover:bg-gray-800"
                   }`}
                 >
@@ -601,7 +847,7 @@ export default function App() {
         {/* ── SCOREBOARD ── */}
         {activeTab === "scoreboard" && (
           <>
-            <NextMatchCard />
+            <NextMatchCard match={nextMatch} />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <TeamCard teamKey="team1" stats={stats} />
@@ -631,7 +877,7 @@ export default function App() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-white font-semibold text-lg flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-green-400" />Round History
+                  <Flag className="w-5 h-5 text-green-400" />Round History
                 </h2>
                 {gameModes.length > 0 && (
                   <div className="flex gap-1">
@@ -654,6 +900,15 @@ export default function App() {
               )}
             </div>
           </>
+        )}
+
+        {/* ── CALENDAR ── */}
+        {activeTab === "calendar" && (
+          <CalendarView
+            allPlannedRounds={allPlannedRounds}
+            onAdd={addPlannedRound}
+            onRemove={removePlannedRound}
+          />
         )}
 
         {/* ── WALL OF SHAME ── */}

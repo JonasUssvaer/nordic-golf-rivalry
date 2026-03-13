@@ -55,16 +55,20 @@ export const TEAMS = {
 };
 
 // ──────────────────────────────────────────────
-// NEXT MATCH — Update when you plan the next round
-// Set to null if nothing is planned
+// PLANNED ROUNDS — Add upcoming rounds here.
+// They appear in the Calendar tab, sorted by date.
+// The nearest upcoming round is also shown on the Scoreboard.
 // ──────────────────────────────────────────────
-export const NEXT_MATCH = {
-  date: "2026-04-18",
-  time: "10:00",
-  course: "TBD",
-  gameMode: "Scramble",
-  notes: "Season opener. Time to dust off the clubs.",
-};
+export const PLANNED_ROUNDS = [
+  {
+    id: "planned-1",
+    date: "2026-04-18",
+    time: "10:00",
+    course: "TBD",
+    gameMode: "Scramble",
+    notes: "Christian med ny driver, Håkon med ny dame. Let the season begin!",
+  },
+];
 
 // ──────────────────────────────────────────────
 // ROUNDS — Add real rounds as the season goes
