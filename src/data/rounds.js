@@ -141,7 +141,7 @@ export const SOCIAL_POSTS = [
     date: "2026-03-13",
     author: "Jonas Ussvær",
     type: "text",
-    caption: "Ikke ",
+    caption: "Skurdal melder at Clu har liten pikk?",
   },
   {
     id: 2,
