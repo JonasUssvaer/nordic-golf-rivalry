@@ -141,13 +141,13 @@ export const SOCIAL_POSTS = [
     date: "2026-03-13",
     author: "Jonas Ussvær",
     type: "text",
-    caption: "Ikke lenge igjen nå!!",
+    caption: "Ikke ",
   },
   {
     id: 2,
     date: "2026-03-13",
     author: "Håkon Skår",
     type: "text",
-    caption: "Håkon skjelver i buksene",
+    caption: " Christian sine drives er like skeiv som Hanso!!!",
   }
 ];
